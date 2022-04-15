@@ -17,18 +17,21 @@ def LoadImages():
 
 def main():
     p.init()
-    global screen
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gamestate = State()
     LoadImages()
     run = True
+    selectedsquare = ()
     while run:
         for x in p.event.get():
             if x.type == p.QUIT:
                 run = False #Closes game
-                
+            elif x.type == p.MOUSEBUTTONDOWN:
+                loc = p.mouse.get_pos() #this gets the x and y locations of the mouse cursor when it is clicked
+                col = loc[0]//square_size
+                row = loc[1]//square_size
         drawState(screen, gamestate)
         clock.tick(max_FPS)
         p.display.flip()
