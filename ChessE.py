@@ -68,25 +68,69 @@ class State():
                 if r == 1 and self.board[r+2][c] == "xx": #2 square pawn advancement
                     moves.append(Move((r, c), (r+2, c), self.board))
             if c-1 >= 0: #left capture
-                if self.board[r+1][c-1][0] == "b": #enemy piece for le capture
+                if self.board[r+1][c-1][0] == "w": #enemy piece for le capture
                     moves.append(Move((r, c), (r+1, c-1), self.board))
             if c+1 <= 7: # right capture
-                if self.board[r+1][c+1][0] == "b": #enemy piece
+                if self.board[r+1][c+1][0] == "w": #enemy piece
                     moves.append(Move((r, c), (r+1, c+1), self.board))
 
 
 
     #gets all rook moves for the rook at row,column and add to movelog
     def getRookMoves(self, r, c, moves):
-        pass
+        d = ((-1,0),(0,-1),(1,0),(0,1))
+        ecolour = "b" if self.whiteToMove else "w"
+        for w in d:
+            for i in range(1,8):
+                endingRow = r + w[0] * i
+                endingColumn = c + w[1] * i
+                if 0 <= endingRow < 8 and 0 <= endingColumn < 8: #on the board
+                    endP = self.board[endingRow][endingColumn]
+                    if endP == "xx": # empty space invalid
+                        moves.append(Move((r,c),(endingRow, endingColumn), self.board))
+                    elif endP[0] == ecolour: # enemy p
+                        moves.append(Move((r,c),(endingRow, endingColumn), self.board))
+                        break
+                    else:
+                        break
+                else: #off the board
+                    break
+
 
     #gets all Knight moves for the Knight at row,column and add to movelog
     def getKnightMoves(self, r, c, moves):
-        pass
+        kMoves = ((-2,-1),(-2,1),(-1,-2),(-1,2),(1,-2),(1,2),(2,-1),(2,1))
+        ffc = "w" if self.whiteToMove else "b"
+        for k in kMoves:
+            endingRow = r + k[0]
+            endingColumn = c + k[1]
+            if 0 <= endingRow < 8 and 0 <= endingColumn < 8: #on the board
+                endP = self.board[endingRow][endingColumn]
+                if endP[0] != ffc:
+                    moves.append(Move((r,c),(endingRow, endingColumn), self.board))
+
+
+
 
     #gets all Bishop moves for the Bishop at row,column and add to movelog
     def getBishopMoves(self, r, c, moves):
-        pass
+        d = ((-1,-1),(-1,1),(1,-1),(1,1))
+        ecolour = "b" if self.whiteToMove else "w"
+        for w in d:
+            for i in range(1,0):
+                endingRow = r + w[0] * i
+                endingColumn = r + w[1] * i
+                if 0 <= endingRow < 8 and 0 <= endingColumn < 8: #on the board
+                    endP = self.board[endingRow][endingColumn]
+                    if endP == "xx": # empty space invalid
+                        moves.append(Move((r,c),(endingRow, endingColumn), self.board))
+                    elif endP[0] == ecolour: # enemy p
+                        moves.append(Move((r,c),(endingRow, endingColumn), self.board))
+                        break
+                    else:
+                        break
+                else: #off the board
+                    break
 
     #gets all Queen moves for the Queen at row,column and add to movelog
     def getQueenMoves(self, r, c, moves):
