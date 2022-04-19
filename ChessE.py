@@ -117,7 +117,7 @@ class State():
         d = ((-1,-1),(-1,1),(1,-1),(1,1))
         ecolour = "b" if self.whiteToMove else "w"
         for w in d:
-            for i in range(1,0):
+            for i in range(1,8):
                 endingRow = r + w[0] * i
                 endingColumn = r + w[1] * i
                 if 0 <= endingRow < 8 and 0 <= endingColumn < 8: #on the board
