@@ -61,6 +61,18 @@ class State():
             if c+1 <= 7: # right capture
                 if self.board[r-1][c+1][0] == "b": #enemy piece
                     moves.append(Move((r, c), (r-1, c+1), self.board))
+        
+        else: # i can use an else statement as its just balck and white that are playing in turns
+            if self.board[r+1][c] == "xx": #one square pawn movement
+                moves.append(Move((r, c), (r+1, c), self.board))
+                if r == 1 and self.board[r+2][c] == "xx": #2 square pawn advancement
+                    moves.append(Move((r, c), (r+2, c), self.board))
+            if c-1 >= 0: #left capture
+                if self.board[r+1][c-1][0] == "b": #enemy piece for le capture
+                    moves.append(Move((r, c), (r+1, c-1), self.board))
+            if c+1 <= 7: # right capture
+                if self.board[r+1][c+1][0] == "b": #enemy piece
+                    moves.append(Move((r, c), (r+1, c+1), self.board))
 
 
 
