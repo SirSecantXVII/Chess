@@ -14,6 +14,9 @@ class State():
             ["xx", "xx", "xx", "xx", "xx", "xx", "xx", "xx"],
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+
+        self.moveFunct = {"p": self.getPawnMoves, "R ": self.getRookMoves, "N": self.getKnightMoves, "B": self.getBishopMoves, "Q": self.getQueenMoves, "K": self.getKingMoves}
+
         self.whiteToMove = True #In a game of Chess, White is always first to move
         self.movelog = []#insert castling
 
@@ -25,7 +28,7 @@ class State():
 
     def undoMove(self): # undo move
         if len(self.movelog) != 0: #make sure mopve log is not zero as it wouldnt be able to execute
-            move = self.moveLog.pop()
+            move = self.movelog.pop()
             self.board[move.startingRow][move.startingColumn ] = move.pieceMoved
             self.board[move.endingRow][move.endingColumn] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
@@ -42,10 +45,7 @@ class State():
                 turn = self.board[r][c][0]
                 if (turn == "w" and self.whiteToMove) or (turn == "b" and not self.whiteToMove):
                     piece = self.board[r][c][1]
-                    if piece == "p":
-                        self.getPawnMoves(r, c, moves)
-                    elif piece == "R":
-                        self.getRookMoves(r, c, moves)
+                    self.moveFunct[piece](r, c, moves)# calls the right funct
         return moves
 
     #gets all pawn moves for the pawn at row,column and add to movelog
@@ -53,13 +53,35 @@ class State():
         if self.whiteToMove: # white pawn
             if self.board[r-1][c] == "xx": #one square pawn movement
                 moves.append(Move((r, c), (r-1, c), self.board))
-                if r == 6 and self.board[r-2][c] == "xx":
+                if r == 6 and self.board[r-2][c] == "xx": #2 square pawn advancement
                     moves.append(Move((r, c), (r-2, c), self.board))
-        
+            if c-1 >= 0: #left capture
+                if self.board[r-1][c-1][0] == "b": #enemy piece for le capture
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
+            if c+1 <= 7: # right capture
+                if self.board[r-1][c+1][0] == "b": #enemy piece
+                    moves.append(Move((r, c), (r-1, c+1), self.board))
+
 
 
     #gets all rook moves for the rook at row,column and add to movelog
     def getRookMoves(self, r, c, moves):
+        pass
+
+    #gets all Knight moves for the Knight at row,column and add to movelog
+    def getKnightMoves(self, r, c, moves):
+        pass
+
+    #gets all Bishop moves for the Bishop at row,column and add to movelog
+    def getBishopMoves(self, r, c, moves):
+        pass
+
+    #gets all Queen moves for the Queen at row,column and add to movelog
+    def getQueenMoves(self, r, c, moves):
+        pass
+
+    #gets all King moves for either King at row,column and add to movelog
+    def getKingMoves(self, r, c, moves):
         pass
 
 
@@ -79,7 +101,6 @@ class Move():
         self.pieceMoved = board[self.startingRow][self.startingColumn]
         self.pieceCaptured = board[self.endingRow][self.endingColumn]
         self.MoveID = self.startingRow * 1000 + self.startingColumn * 100 + self.endingRow * 10 + self.endingColumn #unique moveID
-        print(self.MoveID)
 
 #so the same move doesnt breake le code
     def __eq__(self, other):

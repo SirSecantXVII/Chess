@@ -44,13 +44,11 @@ def main():
                     if len(playerClick) == 2: #after 2nd click
                         move = Move(playerClick[0], playerClick[1], gamestate.board)
                         print(move.GetChessNotat())
-                        gamestate.makeMove(move)
-                        selectedsquare = ()
-                        playerClick = []
                         if move in valid:
                             gamestate.makeMove(move)
                             moveMade = True
-            #undo key
+                        selectedsquare = ()
+                        playerClick = []
             elif x.type == p.KEYDOWN:
                 if x.key == p.K_r: #THIS UNDOS WHEN "r" is pressed
                     gamestate.undoMove()
