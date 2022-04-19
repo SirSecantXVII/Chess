@@ -23,7 +23,8 @@ def main():
     gamestate = State()
     LoadImages()
     run = True
-    selectedsquare = ()
+    selectedsquare = ()#tuple
+    playerClick = []#keeps track of player clicks also a tuple
     while run:
         for x in p.event.get():
             if x.type == p.QUIT:
@@ -32,6 +33,22 @@ def main():
                 loc = p.mouse.get_pos() #this gets the x and y locations of the mouse cursor when it is clicked
                 col = loc[0]//square_size
                 row = loc[1]//square_size
+                if selectedsquare == (row,col): # user clicks same square twice
+                    selectedsquare = () #clears tuple meaning deselcts
+                    playerClick = [] #clear player clicks
+                else:
+                    selectedsquare = (row,col)
+                    playerClick.append(selectedsquare) # appends both clicks
+                    if len(playerClick) == 2: #after 2nd click
+                        move = Move(playerClick[0], playerClick[1], gamestate.board)
+                        print(move.GetChessNotat())
+                        gamestate.makeMove(move)
+                        selectedsquare = ()
+                        playerClick = []
+            #undo key
+            elif x.type == p.KEYDOWN:
+                if x.key == p.K_r: #THIS UNDOS WHEN "r" is pressed
+                    gamestate.undoMove()
         drawState(screen, gamestate)
         clock.tick(max_FPS)
         p.display.flip()
