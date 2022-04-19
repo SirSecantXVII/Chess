@@ -18,8 +18,8 @@ class State():
         self.movelog = []#insert castling
 
     def makeMove(self, move):
-        self.board[move.startingRow][move.startingColumn] == "xx"
-        self.board[move.endingRow][move.startingColumn]
+        self.board[move.startingRow][move.startingColumn] = "xx"
+        self.board[move.endingRow][move.endingColumn] = move.pieceMoved
         self.movelog.append(move) # log the move so it is abke to be undone later
         self.whiteToMove = not self.whiteToMove # swap sides  i.e black to white// white to black
 
@@ -32,15 +32,41 @@ class State():
 
     #checking valid moves
     def returnValidMove(self):
-        pass
+        return self.returnAllValidMoves() 
 
     # all moves without considering if results/creates a check
-    def returnAllValidMoves
+    def returnAllValidMoves(self):
+        moves = []
+        for r in range(len(self.board)): #number of rows
+            for c in range(len(self.board[r])): # number of columns in each row
+                turn = self.board[r][c][0]
+                if (turn == "w" and self.whiteToMove) or (turn == "b" and not self.whiteToMove):
+                    piece = self.board[r][c][1]
+                    if piece == "p":
+                        self.getPawnMoves(r, c, moves)
+                    elif piece == "R":
+                        self.getRookMoves(r, c, moves)
+        return moves
+
+    #gets all pawn moves for the pawn at row,column and add to movelog
+    def getPawnMoves(self, r, c, moves):
+        if self.whiteToMove: # white pawn
+            if self.board[r-1][c] == "xx": #one square pawn movement
+                moves.append(Move((r, c), (r-1, c), self.board))
+                if r == 6 and self.board[r-2][c] == "xx":
+                    moves.append(Move((r, c), (r-2, c), self.board))
+        
+
+
+    #gets all rook moves for the rook at row,column and add to movelog
+    def getRookMoves(self, r, c, moves):
+        pass
+
+
 class Move():
     #maps keys to values
     #key : value
-    ranksToRows = {"1": 7, "2":6, "3": 5, "4": 4, 
-    "5": 3, "6": 2, "7": 1, "8": 0}
+    ranksToRows = {"1": 7, "2":6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
     rowsToRanks = {v: k for k,v in ranksToRows.items()}
     filesToCols = {"a": 0, "b":1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
@@ -52,7 +78,16 @@ class Move():
         self.endingColumn = endsquare[1]
         self.pieceMoved = board[self.startingRow][self.startingColumn]
         self.pieceCaptured = board[self.endingRow][self.endingColumn]
-    
+        self.MoveID = self.startingRow * 1000 + self.startingColumn * 100 + self.endingRow * 10 + self.endingColumn #unique moveID
+        print(self.MoveID)
+
+#so the same move doesnt breake le code
+    def __eq__(self, other):
+        if isinstance(other, Move):
+            return self.MoveID == other.MoveID
+        return False
+
+
     def GetChessNotat(self):
         #to be able to make real chess pgn
         return self.getRankFile(self.startingRow, self.startingColumn) + self.getRankFile(self.endingRow, self.endingColumn)

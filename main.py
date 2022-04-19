@@ -21,6 +21,8 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gamestate = State()
+    valid = gamestate.returnValidMove() #generates valid moves
+    moveMade = False
     LoadImages()
     run = True
     selectedsquare = ()#tuple
@@ -45,10 +47,19 @@ def main():
                         gamestate.makeMove(move)
                         selectedsquare = ()
                         playerClick = []
+                        if move in valid:
+                            gamestate.makeMove(move)
+                            moveMade = True
             #undo key
             elif x.type == p.KEYDOWN:
                 if x.key == p.K_r: #THIS UNDOS WHEN "r" is pressed
                     gamestate.undoMove()
+                    moveMade = True
+        
+        if moveMade:
+            valid = gamestate.returnValidMove()
+            moveMade = False
+
         drawState(screen, gamestate)
         clock.tick(max_FPS)
         p.display.flip()
