@@ -1,4 +1,7 @@
 # for all moves and chess development for the game
+from distutils.archive_util import make_archive
+
+
 class State():
     def __init__(self):
         #self.board initialises the board as a 2 dimensional array so we can use {}
@@ -19,12 +22,22 @@ class State():
 
         self.whiteToMove = True #In a game of Chess, White is always first to move
         self.movelog = []#insert castling
+        self.WKingLoc = (7, 4)
+        self.BKingLoc = (0,4)
+        self.isCheckMate = False
+        self.isStalemate = False
+
 
     def makeMove(self, move):
         self.board[move.startingRow][move.startingColumn] = "xx"
         self.board[move.endingRow][move.endingColumn] = move.pieceMoved
         self.movelog.append(move) # log the move so it is abke to be undone later
+        if move.pieceMoved == "wK": #if the white king is moved
+            self.WKingLoc = (move.endingRow, move.endingColumn)
+        elif move.pieceMoved == "bK": #if the black king is moved
+            self.BKingLoc = (move.endingRow, move.endingColumn)
         self.whiteToMove = not self.whiteToMove # swap sides  i.e black to white// white to black
+
 
     def undoMove(self): # undo move
         if len(self.movelog) != 0: #make sure mopve log is not zero as it wouldnt be able to execute
@@ -32,10 +45,45 @@ class State():
             self.board[move.startingRow][move.startingColumn ] = move.pieceMoved
             self.board[move.endingRow][move.endingColumn] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
-
+            if move.pieceMoved == "wK": #if the white king is moved 
+                self.WKingLoc = (move.startingRow, move.startingColumn)
+            elif move.pieceMoved == "bK": #if the black king is moved
+                self.BKingLoc = (move.startingRow, move.startingColumn)
     #checking valid moves
     def returnValidMove(self):
-        return self.returnAllValidMoves() 
+        moves = self.returnAllValidMoves()
+        for x in range(len(moves)-1, -1, -1):
+            self.makeMove(moves[x]) # checks opponents moves
+            self.whiteToMove = not self.whiteToMove # to switch back to original
+            if self.check():
+                moves.remove(moves[x])
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0:
+            if self.check():
+                self.isCheckMate = True
+            else:
+                self.isStalemate = True
+        else:
+            self.isCheckMate = False
+            self.isStalemate = False
+        return moves
+
+    def check(self):
+        if self.whiteToMove:
+            return self.FindAttackedSquare(self.WKingLoc[0], self.WKingLoc[1])
+        else:
+            return self.FindAttackedSquare(self.BKingLoc[0], self.BKingLoc[1])
+
+    def FindAttackedSquare(self,r ,c):
+        self.whiteToMove = not self.whiteToMove # generate all opponents moves
+        oMoves = self.returnAllValidMoves()
+        for move in oMoves:
+            if move.endingRow == r and move.endingColumn == c:
+                self.whiteToMove = not self.whiteToMove
+                return True
+        self.whiteToMove = not self.whiteToMove
+        return False
 
     # all moves without considering if results/creates a check
     def returnAllValidMoves(self):

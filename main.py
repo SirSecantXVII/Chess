@@ -47,8 +47,10 @@ def main():
                         if move in valid:
                             gamestate.makeMove(move)
                             moveMade = True
-                        selectedsquare = ()
-                        playerClick = []
+                            selectedsquare = ()
+                            playerClick = []
+                        else:
+                            playerClick = [selectedsquare] # this means we dont have to double click when choosing new piece
             elif x.type == p.KEYDOWN:
                 if x.key == p.K_r: #THIS UNDOS WHEN "r" is pressed
                     gamestate.undoMove()
