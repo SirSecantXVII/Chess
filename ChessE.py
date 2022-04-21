@@ -119,7 +119,7 @@ class State():
         for w in d:
             for i in range(1,8):
                 endingRow = r + w[0] * i
-                endingColumn = r + w[1] * i
+                endingColumn = c + w[1] * i
                 if 0 <= endingRow < 8 and 0 <= endingColumn < 8: #on the board
                     endP = self.board[endingRow][endingColumn]
                     if endP == "xx": # empty space invalid
@@ -134,11 +134,26 @@ class State():
 
     #gets all Queen moves for the Queen at row,column and add to movelog
     def getQueenMoves(self, r, c, moves):
-        pass
+        # a queen can move both like a biushop and like a rook so we can just use those functions
+        self.getRookMoves(r, c, moves)
+        self.getBishopMoves(r, c, moves)
+
 
     #gets all King moves for either King at row,column and add to movelog
     def getKingMoves(self, r, c, moves):
-        pass
+        # a king can only move to adjacent squares and one square diagonally
+        KingM = ((-1, -1),(-1, 0),(-1,1),(0, -1),(0, 0),(0, 1),(1, -1),(1, 0),(1,1))
+        ffc = "w" if self.whiteToMove else "b"
+        for i in range(8):
+            endR = r + KingM[i][0]
+            endC = c + KingM[i][1]
+            if 0 <= endR < 8 and 0 <= endC < 8: #on the board
+                    endP = self.board[endR][endC]
+                    if endP[0] != ffc: #not same col
+                         moves.append(Move((r,c),(endR, endC), self.board))
+
+            
+
 
 
 class Move():
