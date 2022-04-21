@@ -44,12 +44,13 @@ def main():
                     if len(playerClick) == 2: #after 2nd click
                         move = Move(playerClick[0], playerClick[1], gamestate.board)
                         print(move.GetChessNotat())
-                        if move in valid:
-                            gamestate.makeMove(move)
-                            moveMade = True
-                            selectedsquare = ()
-                            playerClick = []
-                        else:
+                        for n in range(len(valid)):
+                            if move == valid[n]:
+                                gamestate.makeMove(valid[n])
+                                moveMade = True
+                                selectedsquare = ()
+                                playerClick = []
+                        if not moveMade:
                             playerClick = [selectedsquare] # this means we dont have to double click when choosing new piece
             elif x.type == p.KEYDOWN:
                 if x.key == p.K_r: #THIS UNDOS WHEN "r" is pressed
