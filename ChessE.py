@@ -29,7 +29,8 @@ class State():
         self.PassantP = ()
         self.RightsToCastle = CastlingAbility(True, True, True,True)
         self.RightsToCastleLog = [CastlingAbility(self.RightsToCastle.WhiteQueensSide, self.RightsToCastle.BlackQueensSide, self.RightsToCastle.WhiteKingsSide, self.RightsToCastle.BlackKingsSide)]
-
+    
+    
     def makeMove(self, move):
         self.board[move.startingRow][move.startingColumn] = "xx"
         self.board[move.endingRow][move.endingColumn] = move.pieceMoved
@@ -53,7 +54,7 @@ class State():
         else:
             self.PassantP = ()
         # Casting funvtionality
-        if move.cast: #ksc
+        if move.cast:
             if move.endingColumn - move.startingColumn == 2:
                 self.board[move.endingRow][move.endingColumn - 1] = self.board[move.endingRow][move.endingColumn + 1]
                 self.board[move.endingRow][move.endingColumn + 1] = "xx"
@@ -303,14 +304,14 @@ class State():
     def KSCM(self, r,c,moves):
         if self.board[r][c+1] == "xx" and self.board[r][c+2] == "xx":
             if not self.FindAttackedSquare(r, c+1) and not self.FindAttackedSquare(r, c+2):
-                moves.append(Move((r, c), (r, c+2), self.board, cast = True))
+                moves.append(Move((r, c), (r, c+2), self.board, cast=True))
 
 
 
     def QCSM(self, r,c,moves):
-         if self.board[r][c-1] == "xx" and self.board[r][c-2] == "xx" and self.board[r][c-3]:
+        if self.board[r][c-1] == "xx" and self.board[r][c-2] == "xx" and self.board[r][c-3] == "xx":
             if not self.FindAttackedSquare(r, c-1) and not self.FindAttackedSquare(r, c-2):
-                moves.append(Move((r, c), (r, c-2), self.board, cast = True))
+                moves.append(Move((r, c), (r, c-2), self.board, cast=True))
 
 
 
