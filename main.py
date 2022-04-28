@@ -20,6 +20,7 @@ def main():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
+    p.display.set_caption("Chess Engine")
     gamestate = State()
     valid = gamestate.returnValidMove() #generates valid moves
     moveMade = False
