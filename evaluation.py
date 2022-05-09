@@ -1,13 +1,11 @@
-from fnmatch import translate
 import chess
 import values
 import fenparser
 import math
 import sys
-import main
 import pygame as p
-from main import Depth
 
+Depth = 3
 num = 1
 length = 8
 

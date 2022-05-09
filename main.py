@@ -7,6 +7,7 @@ import math
 import fenparser
 import values
 import evaluation
+import sys
 #main file
 p.init()
 WIDTH = HEIGHT = 512
@@ -38,7 +39,7 @@ class CBoard():
         self.WhiteP = p.transform.scale(p.image.load("pieceimages/WhiteP.png"), (square_size, square_size))
         self.BlackP = p.transform.scale(p.image.load("pieceimages/BlackP.png"), (square_size, square_size))
         self.WhiteN =p.transform.scale(p.image.load("pieceimages/WhiteN.png"), (square_size, square_size))
-        self.BlackN =p.transform.scale(p.image.load("pieceimages/Blackn.png"), (square_size, square_size))
+        self.BlackN =p.transform.scale(p.image.load("pieceimages/BlackN.png"), (square_size, square_size))
         self.WhiteR =p.transform.scale(p.image.load("pieceimages/WhiteR.png"), (square_size, square_size))
         self.BlackR =p.transform.scale(p.image.load("pieceimages/BlackR.png"), (square_size, square_size))
         self.WhiteK =p.transform.scale(p.image.load("pieceimages/WhiteK.png"), (square_size, square_size))
@@ -62,20 +63,25 @@ class CBoard():
         return (HORIZONTAL, VERTICAL)
 
     def drawBoard(self):
-        for Rrow in range(DIMENSION):
-            for Rcol in range(DIMENSION):
-                if (((Rrow+Rcol) % 2)/square_size) == 1: #alternating
-                    self.screen.blit(self.cyan, (Rrow,Rcol))
-                elif(((Rrow+Rcol) % 2)/square_size) != 1:
-                    self.screen.blit(self.grey, (Rrow,Rcol))
+        self.screen.fill("black")
+
+        for w in range(64):
+            col = math.floor(w / WIDTH)
+            row = (w % WIDTH)
+            (x, y) = self.convert_to_board_coordinates(row, col)  
+
+            if ((x+y)/square_size) % 2 == 1: 
+                self.screen.blit(self.cyan, (x, y))
+            else:
+                self.screen.blit(self.grey, (x, y))
 
         if self.FirstPosition:
             Rrow = self.find_row(self.FirstPosition)
             Rcol = self.find_column(self.FirstPosition)
 
-            (HORIZONTAL, VERTICAL) = self.convert_to_board_coordinates(Rcol, Rrow)
-            VERTICAL = HEIGHT - (VERTICAL + square_size) 
-            self.screen.blit(self.highlight, (HORIZONTAL, VERTICAL))
+            (x, y) = self.convert_to_board_coordinates(Rcol, Rrow)
+            y = HEIGHT - (y + square_size) 
+            self.screen.blit(self.highlight, (x, y))
     
     def draw_pieces(self, fen):
         for x in range(DIMENSION * DIMENSION):
@@ -130,8 +136,6 @@ class CBoard():
                 p.display.set_caption('Black Has Won')
             else:
                 print("Game is drawn")
-        
-        p.quit()
 
     def Start(self):
         p.event.set_blocked(p.MOUSEMOTION)
@@ -143,11 +147,12 @@ class CBoard():
                 self.screen = p.display.set_mode((WIDTH,HEIGHT))
                 self.player_moves()
                 
+                
             else:
                 p.display.set_caption('AI Turn')
                 self.screen = p.display.set_mode((WIDTH,HEIGHT))
-                self.board = evaluation.make_move(self.board) 
-                self.turn = not self.WTurn
+                self.board = evaluation.AiThinking(self.board) 
+                self.WTurn = not self.WTurn
                 self.draw()
 
     def pending_promotion(self):
@@ -174,7 +179,7 @@ class CBoard():
         if promo in self.board.legal_moves:
             p.display.set_caption("Promoting")
             self.board.push(promo)
-            self.Wturn = not self.WTurn
+            self.WTurn = not self.WTurn
             self.GameState() 
         else:
             p.display.set_caption("not legal") # non legal moives will be ignored and displayed in the title
@@ -198,7 +203,7 @@ class CBoard():
                         self.draw()
                     
                 if event.type == p.QUIT:
-                        p.quit()
+                        sys.exit()
 
 c = CBoard()
 c.Start()
