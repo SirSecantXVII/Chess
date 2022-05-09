@@ -6,7 +6,7 @@ import pygame as p
 import math
 import fenparser
 import values
-import evaluation
+import Engine
 import sys
 #main file
 p.init()
@@ -66,8 +66,8 @@ class CBoard():
         self.screen.fill("black")
 
         for w in range(64):
-            col = math.floor(w / WIDTH)
-            row = (w % WIDTH)
+            col = math.floor(w / 8)
+            row = (w % 8)
             (x, y) = self.convert_to_board_coordinates(row, col)  
 
             if ((x+y)/square_size) % 2 == 1: 
@@ -151,7 +151,7 @@ class CBoard():
             else:
                 p.display.set_caption('AI Turn')
                 self.screen = p.display.set_mode((WIDTH,HEIGHT))
-                self.board = evaluation.AiThinking(self.board) 
+                self.board = Engine.AiThinking(self.board) 
                 self.WTurn = not self.WTurn
                 self.draw()
 

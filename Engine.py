@@ -18,7 +18,7 @@ def AiThinking(board):
 def calcPieceValue(piece, colour, Rrow, Rcol):
     piece = piece.upper()
     pst_pos = (length * Rrow) + Rcol
-    position_scores = values.pst[piece]
+    position_scores = values.est[piece]
     position_scores = position_scores[::-1] #this reverses the scores so they can be processed correctly
 
     if colour == True:
@@ -73,7 +73,7 @@ def translate(board):
 class Node():
     def __init__(self, depth, playernum, move, board):
         self.depth = depth
-        self.playernum = playernum
+        self.num = num
         self.board = board
         self.move = move
         self.children = []
