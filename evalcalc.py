@@ -4,7 +4,7 @@ import config
 import fenparser
 import math
 import sys
-import main
+import mayn
 import pygame as p
 
 Depth = int(input("What depth would you like to use"))
