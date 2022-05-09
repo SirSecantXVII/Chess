@@ -1,77 +1,79 @@
+from fnmatch import translate
 import chess
 import config
 import fenparser
 import math
 import sys
+import mayn
+import pygame as p
 
-TREE_DEPTH = 2
-PLAYER_NUM = 1
+Depth = int(input("What depth would you like to use"))
+num = 1
+length = 8
 
-def make_move(board):
-    tree = Node(TREE_DEPTH, PLAYER_NUM, 0, board)
-    move = min_max(TREE_DEPTH, tree, PLAYER_NUM, -sys.maxsize, sys.maxsize)
+def AiThinking(board):
+    tree = Node(Depth, num, 0, board) # creates the decison tree
+    move = min_max(Depth, tree, num, -sys.maxsize, sys.maxsize)
     board.push(move[1])
     return board
 
-""" Calculate the score for a piece depending on the color and position """
-def calculate_score_for_piece(piece, lowercase, row, col):
+def calcPieceValue(piece, colour, Rrow, Rcol):
     piece = piece.upper()
-    pst_pos = (config.board_length * row) + col
+    pst_pos = (length * Rrow) + Rcol
     position_scores = config.pst[piece]
-    #reverse the position scores for a right representation for the board
-    position_scores = position_scores[::-1]
+    position_scores = position_scores[::-1] #this reverses the scores so they can be processed correctly
 
-    if lowercase:
+    if colour == True:
         piece_value = config.piece[piece]
-        pst_value = position_scores[pst_pos]
+        pst_value = position_scores[pst_pos]  # whites eval is set as positive "inf" so its objective is to make the score more postive
     else:
-        piece_value = -config.piece[piece]
+        piece_value = -config.piece[piece] # blacks eval is set as negative "inf" so its objective is to make the score more negative
         pst_value = -position_scores[pst_pos]
     return pst_value + piece_value
 
-def calculate_score_for_position(row, col, fen):
-    piece = fen[row][col]
+def calculate_score_for_position(Rrow, Rcol, fen):
+    piece = fen[Rrow][Rcol]
 
     if piece == "P":
-        return calculate_score_for_piece(piece, False, row, col)
+        return calcPieceValue(piece, False, Rrow, Rcol)
     elif piece == "N":
-        return calculate_score_for_piece(piece, False, row, col)
+        return calcPieceValue(piece, False, Rrow, Rcol)
     elif piece == "B":
-        return calculate_score_for_piece(piece, False, row, col)
+        return calcPieceValue(piece, False, Rrow, Rcol)
     elif piece == "R":
-        return calculate_score_for_piece(piece, False, row, col)
+        return calcPieceValue(piece, False, Rrow, Rcol)
     elif piece == "Q":
-        return calculate_score_for_piece(piece, False, row, col)
+        return calcPieceValue(piece, False, Rrow, Rcol)
     elif piece == "K":
-        return calculate_score_for_piece(piece, False, row, col)
+        return calcPieceValue(piece, False, Rrow, Rcol)
     elif piece == "p":
-        return calculate_score_for_piece(piece, True, row, col)
+        return calcPieceValue(piece, True, Rrow, Rcol)
     elif piece == "n":
-        return calculate_score_for_piece(piece, True, row, col)
+        return calcPieceValue(piece, True, Rrow, Rcol)
     elif piece == "b":
-        return calculate_score_for_piece(piece, True, row, col)
+        return calcPieceValue(piece, True, Rrow, Rcol)
     elif piece == "r":
-        return calculate_score_for_piece(piece, True, row, col)
+        return calcPieceValue(piece, True, Rrow, Rcol)
     elif piece == "q":
-        return calculate_score_for_piece(piece, True, row, col)
+        return calcPieceValue(piece, True, Rrow, Rcol)
     elif piece == "k":
-        return calculate_score_for_piece(piece, True, row, col)
+        return calcPieceValue(piece, True, Rrow, Rcol)
     else:
-        return 0
+        p.display("Eval is 0")
 
 """ Calculate the score of the board by parsing the board state """
 def evaluate_board_score(board):
-    fen = parse_fen(board)
-    score = 0
-    for row in range(len(fen)):
-        for col in range(len(fen[row])):
-            score += calculate_score_for_position(row, col, fen)
-    return score
+    fen = translate(board)
+    score = 0 # at the start of a game the evaluation is equal
+    for Rrow in range(len(fen)):
+        for Rcol in range(len(fen[Rrow])):
+            score += calcPieceValue(Rrow, Rcol, fen)
+    p.display("Current Eval: " + score)
 
-def parse_fen(board):
+def translate(board):
     return fenparser.FenParser(board.fen()).parse()
 
-class Node(object):
+class Node():
     def __init__(self, depth, playernum, move, board):
         self.depth = depth
         self.playernum = playernum
@@ -82,21 +84,17 @@ class Node(object):
 
     #create the tree
     def generate_children(self):
-        legal_moves = [x for x in self.board.legal_moves]
+        legal_moves = [x for x in self.board.legal_moves]# all legal moves
         if self.depth >= 0:
-            for x in legal_moves:
-                self.board.push(x)
-                self.children.append(Node(self.depth-1, -self.playernum, x, self.board))
-                self.board.pop()
+            for x in legal_moves: # every move
+                self.board.push(x) # tries every move
+                self.children.append(Node(self.depth-1, -self.num, x, self.board)) # carries on appending the next move till depth = 0
+                self.board.pop() # undoes the move
 
-""" Recursively calculate max possible score for positions throughout the branches in the decision tree. 
-    Using Alpha-Beta pruning to reduce branch calculations.
-    The alpha parameter holds the best value that the maximizer can guarantee at the level or above.
-    the beta parameter holds the best value that the minimizer can guarantee at the level or above.
-    Needs to push before evaluating and pop after so the board always holds the right state. """
+# algorithm xD
 def min_max(depth, node, player, alpha, beta):
     if player > 0:
-        max_score = [alpha, None]
+        max_score = [alpha, None] 
     else:
         max_score = [beta, None]
 
@@ -130,7 +128,7 @@ def min_max(depth, node, player, alpha, beta):
     else: 
         for child in node.children:
             child.board.push(child.move)
-            evaluation = min_max(depth-1, child, -player, alpha, beta)
+            evaluation = min_max(depth-1, child, -player, alpha, beta) # as blacks aim is to create the most negative evaluation player is negative
             child.board.pop()
 
             if(evaluation[0] < max_score[0]):
