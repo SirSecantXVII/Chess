@@ -5,7 +5,7 @@ from matplotlib.ft2font import HORIZONTAL, VERTICAL
 import pygame as p
 import math
 import fenparser
-import config as cfg
+import values
 import evaluation
 #main file
 p.init()
@@ -26,7 +26,7 @@ class CBoard():
         p.init()
         self.screen = p.display.set_mode((WIDTH, HEIGHT))
         clock = p.time.Clock()
-        p.display.set_caption("Chess Engine")
+        p.display.set_caption("Chess Engine v1.2")
         self.FirstPosition = None
         self.LastPosition = None
         self.LoadImages()
@@ -35,23 +35,22 @@ class CBoard():
     
     def LoadImages(self):
         pieces = ["WhiteP", "BlackP", "WhiteN", "BlackN", "WhiteR", "BlackR", "WhiteK", "BlackK", "WhiteQ", "BlackQ", "WhiteB", "BlackB", "yello"]
-        for piece in pieces:
-            IMAGES[piece] = p.transform.scale(p.image.load("pieceimages/" + piece + ".png"), (square_size, square_size))
-        self.WhiteP = IMAGES[0]
-        self.BlackP = IMAGES[1]
-        self.WhiteN = IMAGES[2]
-        self.BlackN = IMAGES[3]
-        self.WhiteR = IMAGES[4]
-        self.BlackR = IMAGES[5]
-        self.WhiteK = IMAGES[6]
-        self.BlackK = IMAGES[7]
-        self.WhiteQ = IMAGES[8]
-        self.BlackQ = IMAGES[9]
-        self.WhiteB = IMAGES[10]
-        self.BlackB = IMAGES[11]
-        self.highlight = IMAGES[12]
-        #loads all the images into an array
-
+        self.WhiteP = p.transform.scale(p.image.load("pieceimages/WhiteP.png"), (square_size, square_size))
+        self.BlackP = p.transform.scale(p.image.load("pieceimages/BlackP.png"), (square_size, square_size))
+        self.WhiteN =p.transform.scale(p.image.load("pieceimages/WhiteN.png"), (square_size, square_size))
+        self.BlackN =p.transform.scale(p.image.load("pieceimages/Blackn.png"), (square_size, square_size))
+        self.WhiteR =p.transform.scale(p.image.load("pieceimages/WhiteR.png"), (square_size, square_size))
+        self.BlackR =p.transform.scale(p.image.load("pieceimages/BlackR.png"), (square_size, square_size))
+        self.WhiteK =p.transform.scale(p.image.load("pieceimages/WhiteK.png"), (square_size, square_size))
+        self.BlackK =p.transform.scale(p.image.load("pieceimages/BlackK.png"), (square_size, square_size))
+        self.WhiteQ =p.transform.scale(p.image.load("pieceimages/WhiteQ.png"), (square_size, square_size))
+        self.BlackQ =p.transform.scale(p.image.load("pieceimages/BlackQ.png"), (square_size, square_size))
+        self.WhiteB =p.transform.scale(p.image.load("pieceimages/WhiteB.png"), (square_size, square_size))
+        self.BlackB =p.transform.scale(p.image.load("pieceimages/BlackB.png"), (square_size, square_size))
+        self.highlight = p.transform.scale(p.image.load("pieceimages/yello.png"), (square_size, square_size))
+        self.grey =p.transform.scale(p.image.load("pieceimages/grey.png"), (square_size, square_size))
+        self.cyan = p.transform.scale(p.image.load("pieceimages/cyan.png"), (square_size, square_size))
+        
     def ConvertToSquare(self, HORIZONTAL, VERTICAL):
         Rrow = 7 - int(math.floor(VERTICAL/square_size)) #flips the Rrow so we can translate it to fen 
         Rcol = int(math.floor(HORIZONTAL/square_size))# squares are 1x1
@@ -62,13 +61,14 @@ class CBoard():
         VERTICAL = Rcolumn * (WIDTH/DIMENSION)
         return (HORIZONTAL, VERTICAL)
 
-    def drawBoard(self, screen):
-        colours = [p.Color("white"), p.Color("brown")]
+    def drawBoard(self):
         for Rrow in range(DIMENSION):
             for Rcol in range(DIMENSION):
-                color = colours[((Rrow+Rcol) % 2)]#alternating
-                p.draw.rect(self.screen, color, p.Rect(Rcol*square_size, Rrow*square_size, square_size, square_size))
-        
+                if (((Rrow+Rcol) % 2)/square_size) == 1: #alternating
+                    self.screen.blit(self.cyan, (Rrow,Rcol))
+                elif(((Rrow+Rcol) % 2)/square_size) != 1:
+                    self.screen.blit(self.grey, (Rrow,Rcol))
+
         if self.FirstPosition:
             Rrow = self.find_row(self.FirstPosition)
             Rcol = self.find_column(self.FirstPosition)
@@ -107,11 +107,11 @@ class CBoard():
             elif fen[Rcol][Rrow] == "B":
                 self.screen.blit(self.WhiteB, (HORIZONTAL,VERTICAL))
         
-        def draw(self):
-            self.drawBoard()
-            fen = self.translate()
-            self.draw_pieces(fen)
-            p.display.update()
+    def draw(self):
+        self.drawBoard()
+        fen = self.translate()
+        self.draw_pieces(fen)
+        p.display.update()
 
     def translate(self):
         return fenparser.FenParser(self.board.fen()).parse()
@@ -133,7 +133,7 @@ class CBoard():
         
         p.quit()
 
-    def main(self):
+    def Start(self):
         p.event.set_blocked(p.MOUSEMOTION)
         self.draw()
         
@@ -141,11 +141,11 @@ class CBoard():
             if self.WTurn == True:
                 p.display.set_caption("White")
                 self.screen = p.display.set_mode((WIDTH,HEIGHT))
-                self.player_move()
+                self.player_moves()
                 
             else:
-                self.screen = p.display.set_mode((WIDTH,HEIGHT))
                 p.display.set_caption('AI Turn')
+                self.screen = p.display.set_mode((WIDTH,HEIGHT))
                 self.board = evaluation.make_move(self.board) 
                 self.turn = not self.WTurn
                 self.draw()
@@ -183,7 +183,7 @@ class CBoard():
     def moves(self, sq):
         if self.LastPosition == None and self.FirstPosition != None:
             self.LastPosition = sq
-            self.check_if_legal()
+            self.legalmovevalidation()
             self.FirstPosition = self.LastPosition = None
         if self.FirstPosition == None:
             self.FirstPosition = sq
@@ -194,11 +194,12 @@ class CBoard():
                     if event.button == 1:
                         pos = p.mouse.get_pos()
                         square = self.ConvertToSquare(pos[0], pos[1])
-                        self.move_piece(square)
+                        self.moves(square)
                         self.draw()
                     
                 if event.type == p.QUIT:
                         p.quit()
-if __name__ == "__main__":
-    c = CBoard()
-    c.main()
+
+c = CBoard()
+c.Start()
+Depth = int(input("What Depth would you like to play on?"))

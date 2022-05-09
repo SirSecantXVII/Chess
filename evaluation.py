@@ -1,13 +1,13 @@
 from fnmatch import translate
 import chess
-import config
+import values
 import fenparser
 import math
 import sys
 import main
 import pygame as p
+from main import Depth
 
-Depth = int(input("What depth would you like to use"))
 num = 1
 length = 8
 
@@ -20,14 +20,14 @@ def AiThinking(board):
 def calcPieceValue(piece, colour, Rrow, Rcol):
     piece = piece.upper()
     pst_pos = (length * Rrow) + Rcol
-    position_scores = config.pst[piece]
+    position_scores = values.pst[piece]
     position_scores = position_scores[::-1] #this reverses the scores so they can be processed correctly
 
     if colour == True:
-        piece_value = config.piece[piece]
+        piece_value = values.piece[piece]
         pst_value = position_scores[pst_pos]  # whites eval is set as positive "inf" so its objective is to make the score more postive
     else:
-        piece_value = -config.piece[piece] # blacks eval is set as negative "inf" so its objective is to make the score more negative
+        piece_value = -values.piece[piece] # blacks eval is set as negative "inf" so its objective is to make the score more negative
         pst_value = -position_scores[pst_pos]
     return pst_value + piece_value
 
@@ -138,7 +138,7 @@ def min_max(depth, node, player, alpha, beta):
             
             beta = min(max_score[0], beta)
             
-            #pruning
+            #prunes by stpping the evaluation calculation after worse potiosn
             if beta <= alpha:
                 break
     return max_score

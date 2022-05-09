@@ -6,7 +6,7 @@ class FenParser():
     self.fen_str = fen_str
 
   def parse(self):
-    ranks = self.fen_str.split(" ")[0].split("/")
+    ranks = self.fen_str.split(" ")[0].split("/") # splits the FEN from chess module by each forward slash
     pieces_on_all_ranks = [self.parse_rank(rank) for rank in ranks]
     return pieces_on_all_ranks
 
